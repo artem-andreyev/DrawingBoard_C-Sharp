@@ -7,7 +7,8 @@ namespace DrawingApp
     {
         private int width;
         private int height;
-        private bool isDrawing;
+        private DrawingColors colors;
+        private static int counter;
 
         public DrawingBoard(int initialWidth, int initialHeight)
         {
@@ -15,11 +16,13 @@ namespace DrawingApp
             {
                 width = initialWidth;
                 height = initialHeight;
-                isDrawing = false;
+                colors = new DrawingColors(ConsoleColor.White);
+                counter++;
+                Console.WriteLine($"Drawing board created. Total boards created: {Counter}");
             }
             else
             {
-                throw new ArgumentException("Platums un augstums jābūt lielākiem par 0.");
+                throw new ArgumentException("Width and height must be greater than 0.");
             }
         }
 
@@ -34,7 +37,7 @@ namespace DrawingApp
                 }
                 else
                 {
-                    throw new ArgumentException("Platumam jābūt lielākam par 0.");
+                    throw new ArgumentException("Width must be greater than 0.");
                 }
             }
         }
@@ -50,46 +53,27 @@ namespace DrawingApp
                 }
                 else
                 {
-                    throw new ArgumentException("Augstumam jābūt lielākam par 0.");
+                    throw new ArgumentException("Height must be greater than 0.");
                 }
             }
         }
 
-        public bool IsDrawing
+        public static int Counter
         {
-            get { return isDrawing; }
+            get { return counter; }
         }
 
-        public void StartDrawing()
+        public DrawingColors Colors
         {
-            isDrawing = true;
-        }
-
-        public void StopDrawing()
-        {
-            isDrawing = false;
-        }
-
-        public void DrawOnBoard(string drawing)
-        {
-            if (IsDrawing)
-            {
-                Console.WriteLine($"Zīmēšana uz dēļa ar izmēriem {Width}x{Height}:");
-                Console.WriteLine(drawing);
-            }
-            else
-            {
-                Console.WriteLine("Zīmēšana nav ieslēgta. Lūdzu, sāciet zīmēšanu.");
-            }
+            get { return colors; }
         }
 
         public class Pencil
         {
             public void Draw(DrawingBoard board, string drawing)
             {
-                board.StartDrawing();
-                board.DrawOnBoard(drawing);
-                board.StopDrawing();
+                Console.WriteLine($"Drawing on the board with dimensions {board.Width}x{board.Height}:");
+                Console.WriteLine(drawing);
             }
         }
 
@@ -97,17 +81,15 @@ namespace DrawingApp
         {
             public void Erase(DrawingBoard board)
             {
-                board.StartDrawing();
-                board.DrawOnBoard("Dēļa tīrīšana...");
-                board.StopDrawing();
+                Console.WriteLine("Board erasing...");
             }
         }
 
-        public class Colors
+        public class DrawingColors
         {
             private ConsoleColor drawingColor;
 
-            public Colors(ConsoleColor initialColor)
+            public DrawingColors(ConsoleColor initialColor)
             {
                 drawingColor = initialColor;
             }
@@ -122,15 +104,20 @@ namespace DrawingApp
             {
                 drawingColor = ConsoleColor.White;
             }
+
+            public void ApplyColor()
+            {
+                Console.ForegroundColor = drawingColor;
+            }
         }
 
         public class Shapes
         {
-            public void DrawShape(DrawingBoard board, string shapeType)
+            public void DrawShape(DrawingBoard board, string shapeType, string colorInfo)
             {
-                board.StartDrawing();
-                Console.WriteLine($"Zīmē {shapeType} uz dēļa ar izmēriem {board.Width}x{board.Height}:");
-
+                Console.WriteLine($"Drawing {shapeType} on the board with dimensions {board.Width}x{board.Height}:");
+                Console.WriteLine(colorInfo); // Вывод информации о цвете фигуры
+            
                 switch (shapeType.ToLower())
                 {
                     case "circle":
@@ -140,30 +127,25 @@ namespace DrawingApp
                         DrawRectangle(board);
                         break;
                     default:
-                        Console.WriteLine("Neatpazīts formas tips.");
+                        Console.WriteLine("Unrecognized shape type.");
                         break;
                 }
-
-                board.StopDrawing();
             }
-
-            // DrawingBoard.cs (inside Shapes class)
-            
             private void DrawCircle(DrawingBoard board)
             {
                 int centerX = board.Width / 2;
                 int centerY = board.Height / 2;
-                int radius = Math.Min(board.Width, board.Height) / 4; // Set the radius as a quarter of the minimum dimension
-            
+                int radius = Math.Min(board.Width, board.Height) / 4;
+
                 for (int i = 0; i < board.Height; i++)
                 {
                     for (int j = 0; j < board.Width; j++)
                     {
                         double distanceToCenter = Math.Sqrt(Math.Pow(j - centerX, 2) + Math.Pow(i - centerY, 2));
-            
-                        // Check if the current point is within a certain distance from the center (the radius)
+
                         if (Math.Abs(distanceToCenter - radius) < 1.5)
                         {
+                            board.Colors.ApplyColor();
                             Console.Write("*");
                         }
                         else
@@ -175,13 +157,13 @@ namespace DrawingApp
                 }
             }
 
-
             private void DrawRectangle(DrawingBoard board)
             {
                 for (int i = 0; i < board.Height; i++)
                 {
                     for (int j = 0; j < board.Width; j++)
                     {
+                        board.Colors.ApplyColor();
                         Console.Write("*");
                     }
                     Console.WriteLine();
