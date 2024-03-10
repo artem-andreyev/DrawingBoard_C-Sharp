@@ -25,6 +25,28 @@ namespace DrawingApp
                 throw new ArgumentException("Width and height must be greater than 0.");
             }
         }
+        public void DrawRandomPattern(DrawingColors randomColor)
+        {
+            Random rand = new Random();
+        
+            for (int i = 0; i < Height; i++)
+            {
+                for (int j = 0; j < Width; j++)
+                {
+                    if (rand.Next(2) == 0)
+                    {
+                        randomColor.ApplyColor();
+                        Console.Write("*");
+                    }
+                    else
+                    {
+                        Console.Write(" ");
+                    }
+                }
+                Console.WriteLine();
+            }
+        }
+
 
         public int Width
         {
@@ -74,14 +96,6 @@ namespace DrawingApp
             {
                 Console.WriteLine($"Drawing on the board with dimensions {board.Width}x{board.Height}:");
                 Console.WriteLine(drawing);
-            }
-        }
-
-        public class Eraser
-        {
-            public void Erase(DrawingBoard board)
-            {
-                Console.WriteLine("Board erasing...");
             }
         }
 
